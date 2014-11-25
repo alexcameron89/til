@@ -1,0 +1,21 @@
+INPUT
+today_i_learned.rb add Today was a good day.
+OUTPUT
+Entry added for 12/23/34
+
+INPUT
+today_i_learned.rb show
+OUTPUT
+0 12/23/34 12:24pm
+--------------------
+Today was a good day
+
+INPUT
+today_i_learned.rb edit 0 Today was a great day.
+OUTPUT
+Entry 0 edited to "Today was a great day."
+
+INPUT
+today_i_learned.rb delete 0
+OUTPUT
+Entry 0 deleted.
