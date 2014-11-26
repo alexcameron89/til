@@ -35,9 +35,12 @@ when 'delete'
   file_new = File.open(ENV['HOME']+'/what_i_learned.txt.new','w')
   counter = 0
   file.readlines.each do |l|
-		date, message = l.split(/||/)
+		date, entry = l.split(/||/)
     file_new.write(l) if counter != message.to_i
     counter +=1
   end
   `mv ~/what_i_learned.txt.new ~/what_i_learned.txt`
+when 'random'
+  lines = File.open(ENV['HOME']+'/what_i_learned.txt','r').readlines
+  puts lines[rand(lines.length)]
 end
