@@ -1,0 +1,5 @@
+= til
+
+Generate this with
+    til rdoc
+After you have described your command line interface

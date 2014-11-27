@@ -1,0 +1,123 @@
+#!/usr/bin/env ruby
+require 'gli'
+begin # XXX: Remove this begin/rescue before distributing your app
+require 'til'
+rescue LoadError
+  STDERR.puts "In development, you need to use `bundle exec bin/til` to run your app"
+  STDERR.puts "At install-time, RubyGems will make sure lib, etc. are in the load path"
+  STDERR.puts "Feel free to remove this message from bin/til now"
+  exit 64
+end
+
+include GLI::App
+
+program_desc 'Describe your application here'
+
+version Til::VERSION
+
+subcommand_option_handling :normal
+arguments :strict
+
+desc 'Describe some switch here'
+switch [:s,:switch]
+
+desc 'Describe some flag here'
+default_value 'the default'
+arg_name 'The name of the argument'
+flag [:f,:flagname]
+
+desc 'Adds a journal entry.'
+arg_name 'Describe arguments to add here'
+command :add do |c|
+  c.desc 'Describe a switch to add'
+  c.switch :s
+
+  c.desc 'Describe a flag to add'
+  c.default_value 'default'
+  c.flag :f
+	c.flag :d #date flag
+  c.action do |global_options,options,args|
+    file = File.open(ENV['HOME']+'/what_i_learned.txt','a')
+ 	  file.write("#{Time.now.strftime('%m/%d/%y %k:%M')}||#{args[0]}\n")
+	  puts "Added your message."
+    # If you have any errors, just raise them
+    # raise "that command made no sense"
+  end
+end
+
+desc 'Show the journal entries.'
+arg_name 'Describe arguments to show here'
+command :show do |c|
+	c.flag :d #date flag
+  c.action do |global_options,options,args|
+  	file = File.open(ENV['HOME']+'/what_i_learned.txt','r')
+  	file.readlines.each do |l|
+	    date, entry = l.split(/\|\|/)
+			puts "Date: #{date}"
+			puts "===================="
+			puts "#{entry}\n"
+ 	  end
+  end
+end
+
+desc 'Edit a journal entry.'
+arg_name 'Describe arguments to edit here'
+command :edit do |c|
+	c.flag :d #date flag
+  c.action do |global_options,options,args|
+	  file = File.open(ENV['HOME']+'/what_i_learned.txt','r')
+	  file_new = File.open(ENV['HOME']+'/what_i_learned.txt.new','w')
+	  counter = 0
+	  file.readlines.each do |l|
+	    date, entry = l.split(/||/)
+	    if date != options[:d]
+	      file_new.write(l)
+	    else
+	      file_new.write("#{Time.now.strftime('%m/%d/%y - %k:%M')}||#{args[0]}\n")
+	      puts 'Message edited'
+	    end
+	    counter +=1
+ 		 end
+	  `mv ~/what_i_learned.txt.new ~/what_i_learned.txt`
+  end
+end
+
+desc 'Delete a journal entry.'
+arg_name 'Describe arguments to delete here'
+command :delete do |c|
+	c.flag :d #date flag
+  c.action do |global_options,options,args|
+	  file = File.open(ENV['HOME']+'/what_i_learned.txt','r')
+	  file_new = File.open(ENV['HOME']+'/what_i_learned.txt.new','w')
+	  counter = 0
+	  file.readlines.each do |l|
+	    date, entry = l.split(/||/)
+	    file_new.write(l) if date != options[:d]
+	    counter +=1
+	  end
+	  `mv ~/what_i_learned.txt.new ~/what_i_learned.txt`
+  end
+end
+
+pre do |global,command,options,args|
+  # Pre logic here
+  # Return true to proceed; false to abort and not call the
+  # chosen command
+  # Use skips_pre before a command to skip this block
+  # on that command only
+  true
+end
+
+post do |global,command,options,args|
+  # Post logic here
+  # Use skips_post before a command to skip this
+  # block on that command only
+end
+
+on_error do |exception|
+  # Error logic here
+  # return false to skip default error handling
+  true
+end
+
+exit run(ARGV)
