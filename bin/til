@@ -11,7 +11,7 @@ end
 
 include GLI::App
 
-program_desc 'Describe your application here'
+program_desc 'A command line daily journal for Today I Learned.'
 
 version Til::VERSION
 
