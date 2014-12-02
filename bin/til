@@ -27,7 +27,7 @@ arg_name 'The name of the argument'
 flag [:f,:flagname]
 
 desc 'Adds a journal entry.'
-arg_name 'Describe arguments to add here'
+arg_name 'message'
 command :add do |c|
   c.desc 'Describe a switch to add'
   c.switch :s
@@ -45,23 +45,27 @@ command :add do |c|
   end
 end
 
-desc 'Show the journal entries.'
-arg_name 'Describe arguments to show here'
+desc 'Shows the journal entries.'
 command :show do |c|
+	c.desc 'shows a specific date'
+	c.arg_name 'date'
 	c.flag :d #date flag
+
   c.action do |global_options,options,args|
   	file = File.open(ENV['HOME']+'/what_i_learned.txt','r')
+		counter = 1
   	file.readlines.each do |l|
 	    date, entry = l.split(/\|\|/)
-			puts "Date: #{date}"
+			puts "ID: #{counter} - Date: #{date}"
 			puts "===================="
 			puts "#{entry}\n"
+			counter += 1
  	  end
   end
 end
 
-desc 'Edit a journal entry.'
-arg_name 'Describe arguments to edit here'
+desc 'Edits a journal entry.'
+arg_name 'message'
 command :edit do |c|
 	c.flag :d #date flag
   c.action do |global_options,options,args|
@@ -82,8 +86,8 @@ command :edit do |c|
   end
 end
 
-desc 'Delete a journal entry.'
-arg_name 'Describe arguments to delete here'
+desc 'Deletes a journal entry.'
+arg_name 'id'
 command :delete do |c|
 	c.flag :d #date flag
   c.action do |global_options,options,args|
