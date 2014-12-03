@@ -1,0 +1,16 @@
+til.rb(1) -- TIL is a simple command line journal.
+=====================================================
+
+## SYNOPSIS
+
+`til.rb` `add` <message><br>
+`til.rb` `edit` `-d date` <message><br> 
+`til.rb` `show` `-d date` <br>
+`til.rb` `delete` `-d date`
+
+
+## DESCRIPTION
+
+**til.rb** is a simple command-line tool for writing a daily 
+Today-I-Learned Journal. Use it to keep track of what you've
+learned and revisit past learning experiences.
