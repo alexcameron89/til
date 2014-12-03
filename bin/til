@@ -40,8 +40,6 @@ command :add do |c|
     file = File.open(ENV['HOME']+'/what_i_learned.txt','a')
  	  file.write("#{Time.now.strftime('%m/%d/%y %k:%M')}||#{args[0]}\n")
 	  puts "Added your message."
-    # If you have any errors, just raise them
-    # raise "that command made no sense"
   end
 end
 
@@ -73,12 +71,14 @@ command :edit do |c|
 	  file_new = File.open(ENV['HOME']+'/what_i_learned.txt.new','w')
 	  counter = 0
 	  file.readlines.each do |l|
-	    date, entry = l.split(/||/)
-	    if date != options[:d]
-	      file_new.write(l)
-	    else
+	    date, entry = l.split(/\|\|/)
+			puts date
+			puts options[:d]
+	    if date.include?(options[:d])
 	      file_new.write("#{Time.now.strftime('%m/%d/%y - %k:%M')}||#{args[0]}\n")
 	      puts 'Message edited'
+	    else
+	      file_new.write(l)
 	    end
 	    counter +=1
  		 end
@@ -93,11 +93,13 @@ command :delete do |c|
   c.action do |global_options,options,args|
 	  file = File.open(ENV['HOME']+'/what_i_learned.txt','r')
 	  file_new = File.open(ENV['HOME']+'/what_i_learned.txt.new','w')
-	  counter = 0
 	  file.readlines.each do |l|
-	    date, entry = l.split(/||/)
-	    file_new.write(l) if date != options[:d]
-	    counter +=1
+	    date, entry = l.split(/\|\|/)
+	    if date.include?(options[:d])
+				puts "Message on #{date} deleted."
+			else
+				file_new.write(l)
+			end
 	  end
 	  `mv ~/what_i_learned.txt.new ~/what_i_learned.txt`
   end
