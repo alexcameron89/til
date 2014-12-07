@@ -18,24 +18,11 @@ version Til::VERSION
 subcommand_option_handling :normal
 arguments :strict
 
-desc 'Describe some switch here'
-switch [:s,:switch]
-
-desc 'Describe some flag here'
-default_value 'the default'
-arg_name 'The name of the argument'
-flag [:f,:flagname]
-
 desc 'Adds a journal entry.'
 arg_name 'message'
 command :add do |c|
-  c.desc 'Describe a switch to add'
-  c.switch :s
-
-  c.desc 'Describe a flag to add'
-  c.default_value 'default'
-  c.flag :f
-	c.flag :d #date flag
+  c.desc 'shows a specific date'
+	c.flag :d
   c.action do |global_options,options,args|
     file = File.open(ENV['HOME']+'/what_i_learned.txt','a')
  	  file.write("#{Time.now.strftime('%m/%d/%y %k:%M')}||#{args[0]}\n")
@@ -47,8 +34,7 @@ desc 'Shows the journal entries.'
 command :show do |c|
 	c.desc 'shows a specific date'
 	c.arg_name 'date'
-	c.flag :d #date flag
-
+	c.flag :d
   c.action do |global_options,options,args|
   	file = File.open(ENV['HOME']+'/what_i_learned.txt','r')
 		counter = 1
@@ -65,23 +51,23 @@ end
 desc 'Edits a journal entry.'
 arg_name 'message'
 command :edit do |c|
-	c.flag :d #date flag
+	c.desc "edits the message with that id."
+	c.arg_name 'id'
+	c.flag :i
   c.action do |global_options,options,args|
 	  file = File.open(ENV['HOME']+'/what_i_learned.txt','r')
 	  file_new = File.open(ENV['HOME']+'/what_i_learned.txt.new','w')
-	  counter = 0
+	  counter = 1
 	  file.readlines.each do |l|
-	    date, entry = l.split(/\|\|/)
-			puts date
-			puts options[:d]
-	    if date.include?(options[:d])
+	    if counter == options[:d].to_i
 	      file_new.write("#{Time.now.strftime('%m/%d/%y - %k:%M')}||#{args[0]}\n")
 	      puts 'Message edited'
 	    else
 	      file_new.write(l)
 	    end
 	    counter +=1
- 		 end
+ 		end
+		raise "Id #{options[:i]} doesn't exist. Try again." if counter < options[:i].to_i
 	  `mv ~/what_i_learned.txt.new ~/what_i_learned.txt`
   end
 end
@@ -89,17 +75,18 @@ end
 desc 'Deletes a journal entry.'
 arg_name 'id'
 command :delete do |c|
-	c.flag :d #date flag
   c.action do |global_options,options,args|
 	  file = File.open(ENV['HOME']+'/what_i_learned.txt','r')
 	  file_new = File.open(ENV['HOME']+'/what_i_learned.txt.new','w')
+		counter = 1
 	  file.readlines.each do |l|
-	    date, entry = l.split(/\|\|/)
-	    if date.include?(options[:d])
+	    date, _entry = l.split(/\|\|/)
+	    if counter == args[0].to_i
 				puts "Message on #{date} deleted."
 			else
 				file_new.write(l)
 			end
+			counter += 1
 	  end
 	  `mv ~/what_i_learned.txt.new ~/what_i_learned.txt`
   end
