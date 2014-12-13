@@ -1,13 +1,6 @@
 #!/usr/bin/env ruby
 require 'gli'
-begin # XXX: Remove this begin/rescue before distributing your app
-require 'til'
-rescue LoadError
-  STDERR.puts "In development, you need to use `bundle exec bin/til` to run your app"
-  STDERR.puts "At install-time, RubyGems will make sure lib, etc. are in the load path"
-  STDERR.puts "Feel free to remove this message from bin/til now"
-  exit 64
-end
+require 'sqlite3'
 
 include GLI::App
 
@@ -17,6 +10,29 @@ version Til::VERSION
 
 subcommand_option_handling :normal
 arguments :strict
+
+desc 'Initiates the journal database.'
+arg_name 'location'
+command :init do |c|
+	c.desc 'chooses the location of the database'
+	c.flag :l
+	c.action do |global_options,options,args|
+		unless args.empty?
+			raise "Too many argments. Try again with quotes." if args.count > 1
+			db_location = args[0]+'/journal.db'
+		else
+			db_location = ENV['HOME']+'/journal.db'
+		end
+
+		unless File.exists?(db_location)
+			db = SQLite3::Database.new(db_location)
+			db.execute("CREATE TABLE entries(P_Id int NOT NULL UNIQUE, date timestamp, message varchar(255));")
+			puts "Database created at #{db_location}."
+		else
+			raise "Database already exists at #{db_location}."
+		end
+	end
+end
 
 desc 'Adds a journal entry.'
 arg_name 'message'
