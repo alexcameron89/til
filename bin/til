@@ -24,6 +24,10 @@ command :add do |c|
   c.desc 'shows a specific date'
 	c.flag :d
   c.action do |global_options,options,args|
+		if args.empty?
+			puts 'Please add a message.'
+			exit
+		end
     file = File.open(ENV['HOME']+'/what_i_learned.txt','a')
  	  file.write("#{Time.now.strftime('%m/%d/%y %k:%M')}||#{args[0]}\n")
 	  puts "Added your message."
@@ -59,6 +63,7 @@ command :edit do |c|
 	  file_new = File.open(ENV['HOME']+'/what_i_learned.txt.new','w')
 	  counter = 1
 	  file.readlines.each do |l|
+			exit if args.empty?
 	    if counter == options[:d].to_i
 	      file_new.write("#{Time.now.strftime('%m/%d/%y - %k:%M')}||#{args[0]}\n")
 	      puts 'Message edited'
