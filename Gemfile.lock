@@ -3,6 +3,7 @@ PATH
   specs:
     til (0.1.0)
       gli (= 2.12.2)
+      sqlite3 (= 1.3.10)
 
 GEM
   remote: https://rubygems.org/
@@ -35,6 +36,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.1.0)
     rspec-support (3.1.2)
+    sqlite3 (1.3.10)
 
 PLATFORMS
   ruby
