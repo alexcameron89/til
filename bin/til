@@ -14,7 +14,7 @@ db_location = "#{ENV['HOME']}/.journal.db"
 
 def ready_database
 	db = SQLite3::Database.open("#{ENV['HOME']}/.journal.db")
-	yield
+	yield db
 	db.close
 end
 
@@ -26,7 +26,7 @@ command [:init, :i] do |c|
 	c.action do |global_options,options,args|
 		unless File.exists?(db_location)
 			db = SQLite3::Database.new(db_location)
-			db.execute("CREATE TABLE entries(P_Id int NOT NULL UNIQUE, Date DATETIME NOT NULL DEFAULT (GETDATE()), Message VARCHAR(255));")
+			db.execute("CREATE TABLE entries(Id INTEGER PRIMARY KEY AUTOINCREMENT, Date DATETIME NOT NULL DEFAULT (DATETIME('now')), Message VARCHAR(255));")
 			puts "Database created at #{db_location}."
 		else
 			raise "Database already exists at #{db_location}."
@@ -44,9 +44,9 @@ command [:add, :a] do |c|
 			puts 'Please add a message.'
 			exit
 		end
-		ready_database do
+		ready_database do |db|
 			db.execute("INSERT INTO entries(Message) VALUES ('#{args[0]}');")
-			end
+		end
 	  puts "Added your message."
   end
 end
