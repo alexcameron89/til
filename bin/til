@@ -10,10 +10,10 @@ version Til::VERSION
 
 subcommand_option_handling :normal
 arguments :strict
-db_location = "#{ENV['HOME']}/journal.db"
+db_location = "#{ENV['HOME']}/.journal.db"
 
 def ready_database
-	db = SQLite3::Database.open("#{ENV['HOME']}/journal.db")
+	db = SQLite3::Database.open("#{ENV['HOME']}/.journal.db")
 	yield
 	db.close
 end
