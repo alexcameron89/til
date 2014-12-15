@@ -10,23 +10,23 @@ version Til::VERSION
 
 subcommand_option_handling :normal
 arguments :strict
+db_location = "#{ENV['HOME']}/journal.db"
+
+def ready_database
+	db = SQLite3::Database.open("#{ENV['HOME']}/journal.db")
+	yield
+	db.close
+end
 
 desc 'Initiates the journal database.'
 arg_name 'location'
-command :init do |c|
+command [:init, :i] do |c|
 	c.desc 'chooses the location of the database'
 	c.flag :l
 	c.action do |global_options,options,args|
-		unless args.empty?
-			raise "Too many argments. Try again with quotes." if args.count > 1
-			db_location = args[0]+'/journal.db'
-		else
-			db_location = ENV['HOME']+'/journal.db'
-		end
-
 		unless File.exists?(db_location)
 			db = SQLite3::Database.new(db_location)
-			db.execute("CREATE TABLE entries(P_Id int NOT NULL UNIQUE, date timestamp, message varchar(255));")
+			db.execute("CREATE TABLE entries(P_Id int NOT NULL UNIQUE, Date DATETIME NOT NULL DEFAULT (GETDATE()), Message VARCHAR(255));")
 			puts "Database created at #{db_location}."
 		else
 			raise "Database already exists at #{db_location}."
@@ -36,7 +36,7 @@ end
 
 desc 'Adds a journal entry.'
 arg_name 'message'
-command :add do |c|
+command [:add, :a] do |c|
   c.desc 'shows a specific date'
 	c.flag :d
   c.action do |global_options,options,args|
@@ -44,14 +44,15 @@ command :add do |c|
 			puts 'Please add a message.'
 			exit
 		end
-    file = File.open(ENV['HOME']+'/what_i_learned.txt','a')
- 	  file.write("#{Time.now.strftime('%m/%d/%y %k:%M')}||#{args[0]}\n")
+		ready_database do
+			db.execute("INSERT INTO entries(Message) VALUES ('#{args[0]}');")
+			end
 	  puts "Added your message."
   end
 end
 
 desc 'Shows the journal entries.'
-command :show do |c|
+command [:show, :s] do |c|
 	c.desc 'shows a specific date'
 	c.arg_name 'date'
 	c.flag :d
@@ -70,7 +71,7 @@ end
 
 desc 'Edits a journal entry.'
 arg_name 'message'
-command :edit do |c|
+command [:edit, :e] do |c|
 	c.desc "edits the message with that id."
 	c.arg_name 'id'
 	c.flag :i
@@ -95,7 +96,7 @@ end
 
 desc 'Deletes a journal entry.'
 arg_name 'id'
-command :delete do |c|
+command [:delete, :d] do |c|
   c.action do |global_options,options,args|
 	  file = File.open(ENV['HOME']+'/what_i_learned.txt','r')
 	  file_new = File.open(ENV['HOME']+'/what_i_learned.txt.new','w')
@@ -131,7 +132,8 @@ end
 on_error do |exception|
   # Error logic here
   # return false to skip default error handling
-  true
+	puts exception
+  puts exception.backtrace
 end
 
 exit run(ARGV)
