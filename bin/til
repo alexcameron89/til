@@ -57,15 +57,13 @@ command [:show, :s] do |c|
 	c.arg_name 'date'
 	c.flag :d
   c.action do |global_options,options,args|
-  	file = File.open(ENV['HOME']+'/what_i_learned.txt','r')
-		counter = 1
-  	file.readlines.each do |l|
-	    date, entry = l.split(/\|\|/)
-			puts "ID: #{counter} - Date: #{date}"
-			puts "===================="
-			puts "#{entry}\n"
-			counter += 1
- 	  end
+ 		ready_database do |db|
+			if options[:d]
+				puts db.execute("SELECT * FROM entries WHERE date BETWEEN '#{options[:d]} 01:00:00' AND '#{options[:d]} 23:59:59';")
+			else
+				puts db.execute("SELECT * FROM entries ORDER BY id DESC LIMIT 5;").reverse
+			end
+		end	
   end
 end
 
