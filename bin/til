@@ -59,7 +59,7 @@ command [:show, :s] do |c|
   c.action do |global_options,options,args|
  		ready_database do |db|
 			if options[:d]
-				puts db.execute("SELECT * FROM entries WHERE date BETWEEN '#{options[:d]} 01:00:00' AND '#{options[:d]} 23:59:59';")
+				puts db.execute("SELECT * FROM entries WHERE date BETWEEN '#{options[:d]} 00:00:00' AND '#{options[:d]} 23:59:59';")
 			else
 				puts db.execute("SELECT * FROM entries ORDER BY id DESC LIMIT 5;").reverse
 			end
@@ -74,6 +74,10 @@ command [:edit, :e] do |c|
 	c.arg_name 'id'
 	c.flag :i
   c.action do |global_options,options,args|
+		ready_database do |db|
+			puts db.execute("UPDATE entries SET message='#{args[0]}' WHERE id='#{options[:i]}';")
+			puts "Message #{options[:i]} edited."
+		end
   end
 end
 
