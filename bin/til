@@ -85,6 +85,10 @@ desc 'Deletes a journal entry.'
 arg_name 'id'
 command [:delete, :d] do |c|
   c.action do |global_options,options,args|
+		ready_database do |db|
+			db.execute("DELETE FROM entries WHERE id='#{args[0]}';")
+			puts "Entry #{args[0]} deleted."
+		end
   end
 end
 
